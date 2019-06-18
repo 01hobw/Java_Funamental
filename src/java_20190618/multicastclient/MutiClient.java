@@ -1,4 +1,4 @@
-package java_20190618.UnicastClient;
+package java_20190618.multicastclient;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -25,7 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class UnicastClient implements ActionListener {
+public class MutiClient implements ActionListener {
 	private String id;
 	private String ip;
 	private int port;
@@ -39,7 +39,7 @@ public class UnicastClient implements ActionListener {
 	private BufferedReader br;
 	private Socket socket;
 
-	public UnicastClient(String id, String ip, int port) {
+	public MutiClient(String id, String ip, int port) {
 		this.id = id;
 		this.ip = ip;
 		this.port = port;
@@ -79,7 +79,7 @@ public class UnicastClient implements ActionListener {
 			public void windowClosing(WindowEvent e) {
 				//System.exit(0); 확 나간다는 말 말고
 				pw.println("Exit");
-				String readLine = null;
+				/*String readLine = null;
 				try {
 					readLine = br.readLine();
 				} catch (IOException e1) {
@@ -96,7 +96,7 @@ public class UnicastClient implements ActionListener {
 						e2.printStackTrace();
 					}
 					System.exit(0);
-				}
+				}*/
 			}
 		});
 	}
@@ -109,28 +109,21 @@ public class UnicastClient implements ActionListener {
 			String message = jtf.getText();
 			//시스템마다 개행이 다를 때 코딩하는거
 			//message += System.getProperty("line.separator");// +"\n"
-			String readLine = sendMessage(message);//readLine을 개행되어 나옴
-			jta.append(readLine);
+			sendMessage(message);//readLine을 개행되어 나옴
+			//jta.append(readLine);
 			jtf.setText(""); // 텍스트 새로쓰게 만듬
 		} else if (obj == jbtn) {
 			String message = jtf.getText();// +"\n"
 			
-			String readLine = null;
-			try {
-				readLine = br.readLine();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			message += System.getProperty("line.separator"); // 개행하는 방법
-			jta.append(id + " : " + message);
+			sendMessage(message);
+			//jta.append(id + " : " + message);
 			jtf.setText(""); // 텍스트 새로쓰게 만듬
 		}
 	}
-
-	private String sendMessage(String message) {
+	//보내고 끝!!
+	private void sendMessage(String message) { 
 		pw.println(id + " : " + message);//server에게 메세지 보냄
-		
+		/*
 		String readLine = null;
 		try {
 			readLine = br.readLine();
@@ -139,7 +132,8 @@ public class UnicastClient implements ActionListener {
 			e1.printStackTrace();
 		}
 		readLine += System.getProperty("line.separator");
-		return readLine;
+		*/ 
+		//return readLine;
 	}
 
 	public void connect(){
@@ -151,6 +145,9 @@ public class UnicastClient implements ActionListener {
 			InputStream in = socket.getInputStream();
 			br = new BufferedReader(new InputStreamReader(in));
 			
+			MutiClientThread mct = new MutiClientThread(br, jta); //br로 읽고 jta로 append 필요하다
+			Thread t = new Thread(mct);
+			t.start();
 			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -163,7 +160,7 @@ public class UnicastClient implements ActionListener {
 	
 	public static void main(String[] args) {
 		JFrame.setDefaultLookAndFeelDecorated(true);
-		UnicastClient uc = new UnicastClient("즐거운 점심시간", "192.168.0.159", 3002);// (아아디,
+		MutiClient uc = new MutiClient("147", "192.168.0.147", 3003);// (아아디,
 																			// ip,
 																			// port)
 		uc.connect();//네트워크 연결하기
